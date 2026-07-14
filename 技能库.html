@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>超哥 Hermes OpenClaw Claude Codex 综合技能库</title>
+<style>
+* {margin:0;padding:0;box-sizing:border-box}
+body {font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#0d1117;color:#e6edf3;padding:0;min-height:100vh}
+.layout {display:flex;min-height:100vh}
+.sidebar {width:230px;background:#161b22;border-right:1px solid #30363d;padding:18px 14px;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:10}
+.sidebar h3 {font-size:0.73em;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px;padding-left:4px}
+.sidebar h3:first-child {margin-top:0}
+.nav-item {display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:0.85em;color:#c9d1d9;margin-bottom:1px;transition:background .15s}
+.nav-item:hover {background:#21262d}
+.nav-item.active {background:#1f6feb;color:#fff}
+.nav-item .count {font-size:0.68em;background:#30363d;padding:1px 7px;border-radius:10px;color:#8b949e}
+.nav-item.active .count {background:#1f6feb;color:#fff}
+.progress-bar {height:3px;background:#21262d;border-radius:2px;margin-top:3px;overflow:hidden}
+.progress-fill {height:100%;background:#3fb950;border-radius:2px;transition:width .3s}
+.platform-tabs {display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;padding:0 4px}
+.platform-tab {padding:5px 10px;border-radius:14px;font-size:0.76em;cursor:pointer;border:1px solid #30363d;background:#161b22;color:#c9d1d9;transition:all .15s}
+.platform-tab:hover {border-color:#58a6ff;color:#58a6ff}
+.platform-tab.active {background:#1f6feb;border-color:#1f6feb;color:#fff}
+.platform-tab[data-p="all"] {color:#f0883e}
+.platform-tab[data-p="hermes"] {color:#58a6ff}
+.platform-tab[data-p="openclaw"] {color:#bc8cff}
+.platform-tab[data-p="claude"] {color:#3fb950}
+.platform-tab[data-p="codex"] {color:#f0883e}
+.main {margin-left:230px;flex:1;padding:20px 26px}
+h1 {text-align:center;font-size:1.6em;margin-bottom:3px;background:linear-gradient(90deg,#58a6ff,#bc8cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+.tagline {text-align:center;color:#f0883e;margin-bottom:4px;font-size:0.9em;font-weight:600}
+.subtitle {text-align:center;color:#8b949e;margin-bottom:18px;font-size:0.82em}
+.stats {text-align:center;margin-bottom:16px}
+.stats span {display:inline-block;margin:0 10px;padding:7px 15px;background:#161b22;border:1px solid #30363d;border-radius:20px;font-size:0.8em}
+.stats strong {color:#58a6ff}
+.search-box {width:100%;padding:10px 15px;border-radius:8px;border:1px solid #30363d;background:#161b22;color:#e6edf3;font-size:0.88em;margin-bottom:14px;outline:none}
+.search-box:focus {border-color:#58a6ff}
+.search-box::placeholder {color:#484f58}
+.legend {display:flex;gap:10px;margin-bottom:14px;justify-content:center;font-size:0.74em;flex-wrap:wrap}
+.legend span {padding:3px 9px;border-radius:11px;background:#161b22;border:1px solid #30363d}
+.legend .owned {border-color:#3fb950}
+.legend .new {border-color:#f0883e}
+.legend .pf {border-color:#58a6ff}
+.cat-section {margin-bottom:16px}
+.cat-header {display:flex;align-items:center;gap:8px;margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid #21262d}
+.cat-header h2 {font-size:1.05em;color:#e6edf3}
+.cat-badge {font-size:0.68em;padding:2px 8px;border-radius:12px;background:#21262d;color:#8b949e}
+.cat-badge .o {color:#3fb950}
+.cat-badge .n {color:#f0883e}
+.cat-progress {display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cat-progress-bar {flex:1;height:4px;background:#21262d;border-radius:2px;overflow:hidden}
+.cat-progress-fill {height:100%;background:linear-gradient(90deg,#3fb950,#58a6ff);border-radius:2px;transition:width .3s}
+.cat-progress-text {font-size:0.7em;color:#8b949e;white-space:nowrap}
+.cat-progress-text strong {color:#3fb950}
+.skill-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:9px}
+.skill-card {background:#161b22;border:1px solid #30363d;border-radius:7px;padding:10px 13px;transition:all .15s;position:relative}
+.skill-card:hover {border-color:#58a6ff;background:#1c2128}
+.skill-name {font-weight:600;color:#58a6ff;margin-bottom:2px;font-size:0.88em;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.skill-desc {color:#8b949e;font-size:0.74em;line-height:1.35;margin-top:3px}
+.skill-actions {display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap}
+.skill-install {background:#1f6feb22;color:#58a6ff;border-radius:9px;font-size:0.65em;padding:2px 8px;border:1px solid #1f6feb44;display:flex;align-items:center;gap:3px}
+.copy-btn {cursor:pointer;background:#161b22;border:1px solid #30363d;border-radius:9px;font-size:0.62em;padding:2px 8px;color:#c9d1d9;transition:all .15s;display:flex;align-items:center;gap:3px}
+.copy-btn:hover {background:#1f6feb;color:#fff;border-color:#58a6ff}
+.copy-btn.copied {background:#3fb950;color:#fff;border-color:#3fb950}
+.tok-tag {background:#21262d;color:#8b949e;border-radius:9px;font-size:0.6em;padding:1px 6px;border:1px solid #30363d}
+.skill-card.owned {border-left:3px solid #3fb950}
+.skill-card.new {border-left:3px solid #f0883e}
+.skill-card.featured {border:1px solid #58a6ff;border-left:3px solid #58a6ff;background:#161b2280}
+.skill-card.featured .skill-name::after {content:'👑';font-size:.7em;color:#f0883e}
+.pf-tag {display:inline-block;padding:1px 6px;border-radius:9px;font-size:0.6em;font-weight:600;letter-spacing:.3px}
+.pf-tag[data-p="hermes"] {background:#1f6feb22;color:#58a6ff}
+.pf-tag[data-p="openclaw"] {background:#bc8cff22;color:#bc8cff}
+.pf-tag[data-p="claude"] {background:#3fb95022;color:#3fb950}
+.pf-tag[data-p="codex"] {background:#f0883e22;color:#f0883e}
+.pf-tag[data-p="all"] {background:#f0c75e22;color:#f0c75e}
+.hidden {display:none!important}
+.footer {text-align:center;margin-top:20px;color:#484f58;font-size:0.7em}
+.footer a {color:#58a6ff;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="layout">
+<div class="sidebar" id="sidebar">
+    <h3>适用平台</h3>
+    <div class="platform-tabs" id="platformTabs">
+        <div class="platform-tab active" data-p="all">全部</div>
+        <div class="platform-tab" data-p="hermes">Hermes</div>
+        <div class="platform-tab" data-p="openclaw">OpenClaw</div>
+        <div class="platform-tab" data-p="claude">Claude Code</div>
+        <div class="platform-tab" data-p="codex">Codex</div>
+    </div>
+    <h3>按大类浏览</h3>
+    <div id="catNav"></div>
+</div>
+<div class="main">
+<h1>超哥 Hermes OpenClaw Claude Codex 综合技能库</h1>
+<p class="tagline">装上 Skill，解锁 AI 超能力</p>
+<p class="subtitle">按平台过滤 按大类浏览 点击复制安装命令</p>
+<div class="stats">
+<span>分类 <strong id="catCount">0</strong></span>
+<span>总技能 <strong id="totalCount">0</strong></span>
+<span>已安装 <strong id="ownedCount">0</strong></span>
+<span>未安装 <strong id="newCount">0</strong></span>
+</div>
+<input type="text" class="search-box" id="searchInput" placeholder="搜索技能名称、分类或描述...">
+<div class="legend">
+<span class="owned">已安装</span>
+<span class="new">未安装</span>
+<span class="pf">推荐安装</span>
+</div>
+<div id="skillLibrary"></div>
+<p class="footer">数据来源: <a href="https://github.com/NousResearch/hermes-agent">github.com/NousResearch/hermes-agent</a> · 更新于 2026-07-14</p>
+</div>
+</div>
+<script>
+const SKILLS = [
+    {cat:"AI Agent",name:"hermes-agent",desc:"Hermes Agent 核心配置与部署：工具集成、技能管理、模型路由、多端对话",owned:true,featured:true,pf:"hermes",install:"hermes agent setup"},
+    {cat:"AI Agent",name:"openclaw",desc:"OpenClaw AI Agent Gateway：配置启动、token 认证、Windows 计划任务生命周期管理",owned:true,featured:true,pf:"openclaw",install:"openclaw gateway start"},
+    {cat:"AI Agent",name:"claude-code",desc:"将编码任务委托给 Claude Code CLI：特性开发、PR 提交、代码审查",owned:true,pf:"claude",install:"skills install claude-code"},
+    {cat:"AI Agent",name:"codex",desc:"将编码任务委托给 OpenAI Codex CLI：代码生成、调试、功能实现",owned:true,pf:"codex",install:"skills install codex"},
+    {cat:"AI Agent",name:"opencode",desc:"将编码任务委托给 OpenCode CLI：代码审查、特性实现",owned:true,pf:"claude",install:"skills install opencode"},
+    {cat:"开发",name:"hermes-agent-skill-authoring",desc:"Hermes Agent 技能开发指南：SKILL.md 编写、自定义工具、技能测试",owned:false,featured:true,pf:"hermes",install:"skills install hermes-agent-skill-authoring"},
+    {cat:"开发",name:"python-debugpy",desc:"Python Debugpy 调试：断点调试、多进程、远程调试",owned:false,pf:"hermes",install:"skills install python-debugpy"},
+    {cat:"开发",name:"node-inspect-debugger",desc:"Node.js 调试器集成：断点、步进、变量检查",owned:false,pf:"hermes",install:"skills install node-inspect-debugger"},
+    {cat:"开发",name:"systematic-debugging",desc:"系统化调试方法论：问题定位、根因分析、假设验证",owned:false,pf:"all",install:"skills install systematic-debugging"},
+    {cat:"开发",name:"test-driven-development",desc:"测试驱动开发 (TDD)：测试用例设计、红绿重构循环",owned:false,pf:"all",install:"skills install test-driven-development"},
+    {cat:"开发",name:"requesting-code-review",desc:"代码审查请求流程：提交审查、回复评论、修改提交",owned:false,pf:"all",install:"skills install requesting-code-review"},
+    {cat:"开发",name:"simplify-code",desc:"代码简化与优化：重构、复杂度降低、性能改进",owned:false,pf:"all",install:"skills install simplify-code"},
+    {cat:"开发",name:"spike",desc:"Spike 解决方案探索：快速原型、技术验证、风险评估",owned:false,pf:"all",install:"skills install spike"},
+    {cat:"开发",name:"plan",desc:"项目计划与任务管理：需求分解、里程碑、进度跟踪",owned:false,pf:"all",install:"skills install plan"},
+    {cat:"GitHub",name:"github-pr-workflow",desc:"PR 完整生命周期：分支创建、提交、PR 打开、CI、合并",owned:false,pf:"all",install:"skills install github-pr-workflow"},
+    {cat:"GitHub",name:"github-code-review",desc:"PR 代码审查：diff 分析、内联评论、反馈提交",owned:false,pf:"all",install:"skills install github-code-review"},
+    {cat:"GitHub",name:"github-repo-management",desc:"GitHub 仓库管理：创建、设置、分支策略、成员管理",owned:false,pf:"all",install:"skills install github-repo-management"},
+    {cat:"GitHub",name:"github-issues",desc:"GitHub Issues 管理：创建、分配、跟踪、关闭",owned:false,pf:"all",install:"skills install github-issues"},
+    {cat:"GitHub",name:"github-auth",desc:"GitHub 认证：令牌生成、权限配置、SSH 密钥",owned:false,pf:"all",install:"skills install github-auth"},
+    {cat:"GitHub",name:"codebase-inspection",desc:"用 pygount 检查代码库：代码量、语言分布、复杂度指标",owned:false,pf:"hermes",install:"skills install codebase-inspection"},
+    {cat:"MLOps",name:"huggingface-hub",desc:"HuggingFace CLI：搜索、下载、上传模型和数据集",owned:false,pf:"hermes",install:"skills install huggingface-hub"},
+    {cat:"MLOps",name:"inference",desc:"模型推理部署：加载、批处理、GPU 优化",owned:false,pf:"hermes",install:"skills install inference"},
+    {cat:"MLOps",name:"models",desc:"模型管理：版本控制、存储、加载策略",owned:false,pf:"hermes",install:"skills install models"},
+    {cat:"MLOps",name:"evaluation",desc:"模型评估与基准测试：指标计算、对比分析",owned:false,pf:"hermes",install:"skills install evaluation"},
+    {cat:"创意",name:"comfyui",desc:"ComfyUI 图像/视频/音频生成：安装、启动、节点管理、工作流执行",owned:true,pf:"hermes",install:"skills install comfyui"},
+    {cat:"创意",name:"architecture-diagram",desc:"暗色 SVG 架构图/云/基础设施图，输出为 HTML",owned:false,pf:"all",install:"skills install architecture-diagram"},
+    {cat:"创意",name:"claude-design",desc:"一次性 HTML 设计：落地页、幻灯片、产品原型",owned:false,pf:"claude",install:"skills install claude-design"},
+    {cat:"创意",name:"sketch",desc:"一次性 HTML 原型，生成 2-3 种设计变体对比",owned:false,pf:"all",install:"skills install sketch"},
+    {cat:"创意",name:"excalidraw",desc:"手绘风格 Excalidraw JSON 架构图/流程图/时序图",owned:false,pf:"all",install:"skills install excalidraw"},
+    {cat:"创意",name:"design-md",desc:"设计相关 Markdown 文档模板",owned:false,pf:"all",install:"skills install design-md"},
+    {cat:"创意",name:"ascii-art",desc:"ASCII 艺术文本生成",owned:false,pf:"all",install:"skills install ascii-art"},
+    {cat:"创意",name:"ascii-video",desc:"ASCII 动画视频生成",owned:false,pf:"all",install:"skills install ascii-video"},
+    {cat:"创意",name:"baoyu-infographic",desc:"信息图表生成",owned:false,pf:"all",install:"skills install baoyu-infographic"},
+    {cat:"创意",name:"p5js",desc:"p5.js 创意编程与交互式可视化",owned:false,pf:"all",install:"skills install p5js"},
+    {cat:"创意",name:"popular-web-designs",desc:"流行网页设计模板库",owned:false,pf:"all",install:"skills install popular-web-designs"},
+    {cat:"创意",name:"manim-video",desc:"Manim 数学动画视频生成",owned:false,pf:"all",install:"skills install manim-video"},
+    {cat:"创意",name:"songwriting-and-ai-music",desc:"AI 音乐创作与歌曲编写",owned:false,pf:"all",install:"skills install songwriting-and-ai-music"},
+    {cat:"创意",name:"touchdesigner-mcp",desc:"TouchDesigner MCP 集成",owned:false,pf:"hermes",install:"skills install touchdesigner-mcp"},
+    {cat:"创意",name:"pretext",desc:"PreTeXt 学术文档排版",owned:false,pf:"all",install:"skills install pretext"},
+    {cat:"创意",name:"humanizer",desc:"文本人类化改写：去 AI 痕迹、自然表达",owned:false,pf:"all",install:"skills install humanizer"},
+    {cat:"效率",name:"notion",desc:"Notion API：页面、数据库、Markdown、Cloudflare Workers",owned:false,pf:"all",install:"skills install notion"},
+    {cat:"效率",name:"google-workspace",desc:"Gmail、Google Calendar、Drive、Docs、Sheets 集成",owned:false,pf:"all",install:"skills install google-workspace"},
+    {cat:"效率",name:"powerpoint",desc:"PPT 创建/读取/编辑：幻灯片、注释、模板",owned:false,pf:"all",install:"skills install powerpoint"},
+    {cat:"效率",name:"airtable",desc:"Airtable REST API：记录 CRUD、筛选、批量更新",owned:false,pf:"all",install:"skills install airtable"},
+    {cat:"效率",name:"ocr-and-documents",desc:"PDF/扫描件文字提取：pymupdf、marker-pdf",owned:false,pf:"all",install:"skills install ocr-and-documents"},
+    {cat:"效率",name:"nano-pdf",desc:"PDF 创建与处理",owned:false,pf:"all",install:"skills install nano-pdf"},
+    {cat:"效率",name:"maps",desc:"地图与地理位置服务",owned:false,pf:"all",install:"skills install maps"},
+    {cat:"效率",name:"teams-meeting-pipeline",desc:"Teams 会议流程自动化",owned:false,pf:"all",install:"skills install teams-meeting-pipeline"},
+    {cat:"效率",name:"petdex",desc:"宠物管理工具",owned:false,pf:"all",install:"skills install petdex"},
+    {cat:"邮件",name:"himalaya",desc:"Himalaya 邮件客户端 CLI：收发、分类、搜索",owned:false,pf:"hermes",install:"skills install himalaya"},
+    {cat:"邮件",name:"gmail",desc:"Gmail：邮件收发、分类、搜索、自动回复",owned:false,pf:"all",install:"skills install google-workspace"},
+    {cat:"媒体",name:"youtube-content",desc:"YouTube 视频转字幕→摘要/博客/评论",owned:false,pf:"all",install:"skills install youtube-content"},
+    {cat:"媒体",name:"gif-search",desc:"从 Tenor 搜索/下载 GIF",owned:false,pf:"all",install:"skills install gif-search"},
+    {cat:"媒体",name:"heartmula",desc:"Heartmula 图片搜索/编辑/生成",owned:false,pf:"all",install:"skills install heartmula"},
+    {cat:"媒体",name:"songsee",desc:"Songsee 歌词/音乐内容提取",owned:false,pf:"all",install:"skills install songsee"},
+    {cat:"研究",name:"arxiv",desc:"arXiv 论文搜索：关键词、作者、分类、ID",owned:false,pf:"all",install:"skills install arxiv"},
+    {cat:"研究",name:"research-paper-writing",desc:"研究论文写作辅助：结构规划、引用管理、润色",owned:false,pf:"all",install:"skills install research-paper-writing"},
+    {cat:"研究",name:"blogwatcher",desc:"博客文章监控与摘要",owned:false,pf:"hermes",install:"skills install blogwatcher"},
+    {cat:"研究",name:"llm-wiki",desc:"LLM 知识库/维基管理",owned:false,pf:"all",install:"skills install llm-wiki"},
+    {cat:"研究",name:"polymarket",desc:"Polymarket 预测市场数据分析",owned:false,pf:"all",install:"skills install polymarket"},
+    {cat:"笔记",name:"obsidian",desc:"Obsidian 笔记库：读写、搜索、创建、编辑笔记",owned:false,pf:"all",install:"skills install obsidian"},
+    {cat:"数据科学",name:"jupyter-live-kernel",desc:"Jupyter 实时内核：交互式数据分析、代码执行",owned:false,pf:"hermes",install:"skills install jupyter-live-kernel"},
+    {cat:"智能家居",name:"openhue",desc:"Philips Hue 智能灯控制：开关、颜色、场景",owned:false,pf:"hermes",install:"skills install openhue"},
+    {cat:"社交",name:"xurl",desc:"X (Twitter) 链接工具：抓取、提取、分析",owned:false,pf:"all",install:"skills install xurl"},
+    {cat:"Apple",name:"apple-notes",desc:"通过 memo CLI 管理 Apple Notes：创建、搜索、编辑",owned:false,pf:"hermes",install:"skills install apple-notes"},
+    {cat:"Apple",name:"apple-reminders",desc:"通过 CLI 管理 Apple Reminders 提醒事项",owned:false,pf:"hermes",install:"skills install apple-reminders"},
+    {cat:"Apple",name:"imessage",desc:"通过 imsg CLI 发送和接收 iMessage/SMS",owned:false,pf:"hermes",install:"skills install imessage"},
+    {cat:"Apple",name:"findmy",desc:"使用 Find My 查找设备位置",owned:false,pf:"hermes",install:"skills install findmy"},
+];
+
+const PF_LABEL = {all:"全部",hermes:"Hermes",openclaw:"OpenClaw",claude:"Claude",codex:"Codex"};
+let activePlatform = "all";
+let activeCat = null;
+
+function copyInstall(cmd, btn) {
+  navigator.clipboard.writeText(cmd).then(() => {
+    btn.textContent = '已复制';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = cmd; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '已复制'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function render() {
+  const el = document.getElementById('skillLibrary');
+  el.innerHTML = '';
+  const f = (document.getElementById('searchInput').value || '').toLowerCase();
+  const groups = {};
+  let total=0, owned=0;
+
+  SKILLS.forEach(s => {
+    const pfMatch = activePlatform === "all" || s.pf === activePlatform;
+    const searchMatch = !f || s.cat.toLowerCase().includes(f) || s.name.toLowerCase().includes(f) || s.desc.toLowerCase().includes(f);
+    const catMatch = !activeCat || s.cat === activeCat;
+    if (!(pfMatch && searchMatch && catMatch)) return;
+    if (!groups[s.cat]) groups[s.cat] = [];
+    groups[s.cat].push(s);
+    total++;
+    if (s.owned) owned++;
+  });
+
+  document.getElementById('catCount').textContent = Object.keys(groups).length;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('ownedCount').textContent = owned;
+  document.getElementById('newCount').textContent = total - owned;
+
+  Object.keys(groups).forEach(cat => {
+    const sec = document.createElement('div');
+    sec.className = 'cat-section';
+    const head = document.createElement('div');
+    head.className = 'cat-header';
+    const h2 = document.createElement('h2');
+    h2.textContent = cat;
+    const badge = document.createElement('span');
+    badge.className = 'cat-badge';
+    const o = groups[cat].filter(s=>s.owned).length;
+    const n = groups[cat].length - o;
+    badge.innerHTML = '<span class="o">'+o+'</span>已装 <span class="n">'+n+'</span>未装 / 共'+groups[cat].length;
+    head.appendChild(h2);
+    head.appendChild(badge);
+    sec.appendChild(head);
+
+    const prog = document.createElement('div');
+    prog.className = 'cat-progress';
+    const pbar = document.createElement('div');
+    pbar.className = 'cat-progress-bar';
+    const pfill = document.createElement('div');
+    pfill.className = 'cat-progress-fill';
+    pfill.style.width = (o/groups[cat].length*100).toFixed(0)+'%';
+    pbar.appendChild(pfill);
+    const ptext = document.createElement('div');
+    ptext.className = 'cat-progress-text';
+    ptext.innerHTML = '<strong>'+o+'/'+groups[cat].length+'</strong> 完成 '+(o/groups[cat].length*100).toFixed(0)+'%';
+    prog.appendChild(pbar);
+    prog.appendChild(ptext);
+    sec.appendChild(prog);
+
+    const grid = document.createElement('div');
+    grid.className = 'skill-grid';
+
+    groups[cat].forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'skill-card ' + (s.owned ? 'owned' : 'new') + (s.featured ? ' featured' : '');
+
+      const name = document.createElement('div');
+      name.className = 'skill-name';
+      name.textContent = s.name;
+
+      const pftag = document.createElement('span');
+      pftag.className = 'pf-tag';
+      pftag.dataset.p = s.pf;
+      pftag.textContent = PF_LABEL[s.pf] || s.pf;
+      name.appendChild(pftag);
+
+      const desc = document.createElement('div');
+      desc.className = 'skill-desc';
+      desc.textContent = s.desc;
+
+      const actions = document.createElement('div');
+      actions.className = 'skill-actions';
+
+      const inst = document.createElement('span');
+      inst.className = 'skill-install';
+      inst.textContent = s.install;
+
+      const copybtn = document.createElement('span');
+      copybtn.className = 'copy-btn';
+      copybtn.textContent = '复制';
+      copybtn.addEventListener('click', () => copyInstall(s.install, copybtn));
+
+      const toktag = document.createElement('span');
+      toktag.className = 'tok-tag';
+      toktag.textContent = s.owned ? '已装' : '未装';
+
+      actions.appendChild(inst);
+      actions.appendChild(copybtn);
+      actions.appendChild(toktag);
+
+      card.appendChild(name);
+      card.appendChild(desc);
+      card.appendChild(actions);
+      grid.appendChild(card);
+    });
+
+    sec.appendChild(grid);
+    el.appendChild(sec);
+  });
+
+  if (total === 0) {
+    el.innerHTML = '<p style="text-align:center;color:#484f58;padding:40px 0;font-size:0.9em">没有找到匹配的技能</p>';
+  }
+}
+
+function buildCatNav() {
+  const nav = document.getElementById('catNav');
+  nav.innerHTML = '';
+
+  const allTotal = SKILLS.length;
+  const allOwned = SKILLS.filter(s=>s.owned).length;
+  const allItem = document.createElement('div');
+  allItem.className = 'nav-item' + (activeCat === null ? ' active' : '');
+  allItem.innerHTML = '<span>全部 ('+allTotal+')</span><span class="count">'+allOwned+'/'+allTotal+'</span>';
+  const allProg = document.createElement('div');
+  allProg.className = 'progress-bar';
+  const allFill = document.createElement('div');
+  allFill.className = 'progress-fill';
+  allFill.style.width = (allOwned/allTotal*100).toFixed(0)+'%';
+  allProg.appendChild(allFill);
+  allItem.appendChild(allProg);
+  allItem.addEventListener('click', () => {
+    activeCat = null;
+    document.querySelectorAll('#catNav .nav-item').forEach(el => el.classList.remove('active'));
+    allItem.classList.add('active');
+    render();
+  });
+  nav.appendChild(allItem);
+
+  const counts = {};
+  SKILLS.forEach(s => {
+    if (!counts[s.cat]) counts[s.cat] = {total:0,owned:0};
+    counts[s.cat].total++;
+    if (s.owned) counts[s.cat].owned++;
+  });
+  Object.keys(counts).forEach(cat => {
+    const c = counts[cat];
+    const item = document.createElement('div');
+    item.className = 'nav-item' + (activeCat === cat ? ' active' : '');
+    item.innerHTML = '<span>'+cat+' ('+c.total+')</span><span class="count">'+c.owned+'/'+c.total+'</span>';
+    const prog = document.createElement('div');
+    prog.className = 'progress-bar';
+    const fill = document.createElement('div');
+    fill.className = 'progress-fill';
+    fill.style.width = (c.owned/c.total*100).toFixed(0)+'%';
+    prog.appendChild(fill);
+    item.appendChild(prog);
+    item.addEventListener('click', () => {
+      activeCat = activeCat === cat ? null : cat;
+      document.querySelectorAll('#catNav .nav-item').forEach(el => el.classList.remove('active'));
+      if (activeCat) item.classList.add('active');
+      render();
+    });
+    nav.appendChild(item);
+  });
+}
+
+document.querySelectorAll('#platformTabs .platform-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#platformTabs .platform-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activePlatform = tab.dataset.p;
+    render();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', () => render());
+
+buildCatNav();
+render();
+</script>
+</body>
+</html>
